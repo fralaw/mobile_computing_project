@@ -1,4 +1,4 @@
-package com.example.mobile_computing_project
+package com.example.mobile_computing_project.ui
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -17,22 +17,9 @@ class MainActivity : ComponentActivity() {
             Mobile_computing_projectTheme {
                 // A surface container using the 'background' color from the theme
                 Surface(color = MaterialTheme.colors.background) {
-                    Greeting("Android")
+                    RemindersApp()
                 }
             }
         }
-    }
-}
-
-@Composable
-fun Greeting(name: String) {
-    Text(text = "Hello $name!")
-}
-
-@Preview(showBackground = true)
-@Composable
-fun DefaultPreview() {
-    Mobile_computing_projectTheme {
-        Greeting("Android")
     }
 }
