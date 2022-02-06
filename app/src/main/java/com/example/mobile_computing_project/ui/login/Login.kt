@@ -1,11 +1,13 @@
 package com.example.mobile_computing_project.ui.login;
 
+import android.content.SharedPreferences
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.runtime.Composable;
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
@@ -16,15 +18,27 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController;
 import com.google.accompanist.insets.systemBarsPadding
+import androidx.compose.foundation.Image
+import androidx.compose.ui.res.painterResource
+import com.example.mobile_computing_project.R
 
 @Composable
 fun Login(
-        navController: NavController
+        navController: NavController,
+        sp: SharedPreferences
 ) {
+
         Surface(modifier = Modifier.fillMaxSize()) {
                 val username = rememberSaveable { mutableStateOf("") }
                 val password = rememberSaveable { mutableStateOf("") }
-
+                Image(
+                        painter = painterResource(id = R.drawable.login_background),
+                        contentDescription = null,
+                        modifier = Modifier
+                                .fillMaxSize()
+                                .fillMaxHeight(),
+                        alpha = 0.2f
+                )
                 Column(
                         modifier = Modifier
                                 .fillMaxWidth()
@@ -33,10 +47,13 @@ fun Login(
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.Center
                 ) {
-                        Icon(
-                                imageVector = Icons.Default.AccountCircle,
+                        Image(
+                                painter = painterResource(id = R.drawable.logo_with_background),
                                 contentDescription = null,
-                                modifier = Modifier.size(200.dp)
+                                modifier = Modifier
+                                        .fillMaxWidth()
+                                        .size(100.dp),
+                                alpha = 0.6f
                         )
                         Spacer(modifier = Modifier.height(10.dp))
                         OutlinedTextField(
@@ -61,7 +78,7 @@ fun Login(
                         )
                         Spacer(modifier = Modifier.height(10.dp))
                         Button(
-                                onClick = { navController.navigate("payment") },
+                                onClick = { userCheck(username,password,sp, navController) },
                                 enabled = true,
                                 modifier = Modifier.fillMaxWidth(),
                                 shape = MaterialTheme.shapes.small
@@ -69,5 +86,16 @@ fun Login(
                                 Text(text = "Login")
                         }
                 }
+
+        }
+}
+fun userCheck(username: MutableState<String>, password: MutableState<String>, sp: SharedPreferences, navController: NavController){
+        var key = String()
+        key = username.value + password.value
+        if(sp.contains(key)){
+                navController.navigate("home")
+        }
+        else{
+                return
         }
 }
