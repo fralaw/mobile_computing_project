@@ -1,17 +1,28 @@
 package com.example.mobile_computing_project.data.entity
-import java.util.Date
-import java.util.Locale
-import java.time.Instant
-import java.time.LocalDateTime
-import java.time.LocalDate
-import java.time.ZoneOffset
-import java.text.SimpleDateFormat
-import java.time.format.DateTimeFormatter
+
+import androidx.room.ColumnInfo
+import androidx.room.Entity
+import androidx.room.Index
+import androidx.room.PrimaryKey
 import java.util.*
 
-data class Reminder(
-    val reminderId: Long,
-    val reminderTitle: String,
-    val reminderDescription: String,
-    val reminderDateTime: LocalDateTime
+
+@Entity(
+    tableName = "reminders",
+    indices = [
+        Index("id", unique = true)
+    ]
+
 )
+data class Reminder(
+    @PrimaryKey(autoGenerate = true) @ColumnInfo(name = "id") val id: Long = 0,
+    @ColumnInfo(name = "message") val message: String,
+    @ColumnInfo(name = "location_x") val location_x: Int,
+    @ColumnInfo(name = "location_y") val location_y: Int,
+    @ColumnInfo(name = "reminder_time") val reminder_time: String,
+    @ColumnInfo(name = "creation_time") val creation_time: String,
+    @ColumnInfo(name = "creator_id") val creator_id: Long,
+    @ColumnInfo(name = "reminder_seen") val reminder_seen: Boolean,
+)
+
+//Message, location_x, location_y, reminder_time, creation_time, creator_id, reminder_seen

@@ -2,39 +2,50 @@ package com.example.mobile_computing_project.ui.home.categoryReminder.categoryRe
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.mobile_computing_project.Graph
+import com.example.mobile_computing_project.Graph.reminderRepository
 import com.example.mobile_computing_project.data.entity.Reminder
+import com.example.mobile_computing_project.data.repository.ReminderRepository
+
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.collect
 import java.time.LocalDateTime
+import java.util.*
 
-class CategoryReminderViewModel : ViewModel() {
+class CategoryReminderViewModel(
+    private val reminderRepository: ReminderRepository = Graph.reminderRepository
+) : ViewModel() {
     private val _state = MutableStateFlow(CategoryReminderViewState())
 
     val state: StateFlow<CategoryReminderViewState>
         get() = _state
 
     init {
-        val list = mutableListOf<Reminder>()
-        for (x in 1..20) {
-            list.add(
-                Reminder(
-                    reminderId = x.toLong(),
-                    reminderTitle = "$x reminder",
-                    reminderDescription = "Description $x",
-                    reminderDateTime = LocalDateTime.now()
-                )
-            )
-        }
-
         viewModelScope.launch {
-            _state.value = CategoryReminderViewState(
-                payments = list
-            )
+            reminderRepository.clearReminders()
+            reminderRepository.getReminders().collect { list ->
+                _state.value = CategoryReminderViewState(
+                    reminders = list
+                )
+            }
         }
     }
+    fun deleteReminder(id: Long) {
+        viewModelScope.launch {
+            reminderRepository.deleteReminder(id)
+            reminderRepository.getReminders().collect { list ->
+                _state.value = CategoryReminderViewState(
+                    reminders = list
+                )
+            }
+        }
+    }
+
 }
 
+
 data class CategoryReminderViewState(
-    val payments: List<Reminder> = emptyList()
+    val reminders: List<Reminder> = emptyList()
 )

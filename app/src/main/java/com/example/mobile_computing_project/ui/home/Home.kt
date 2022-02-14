@@ -33,7 +33,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.mobile_computing_project.R
-import com.example.mobile_computing_project.ui.home.categoryReminder.categoryReminder.CategoryReminder
+import com.example.mobile_computing_project.ui.home.categoryReminder.CategoryReminder
 import com.google.accompanist.insets.systemBarsPadding
 
 @Composable
@@ -56,7 +56,7 @@ fun HomeContent(
         modifier = Modifier.padding(bottom = 36.dp),
         floatingActionButton = {
             FloatingActionButton(
-                onClick = { },
+                onClick = { navController.navigate("reminder")},
                 contentColor = Color.Blue,
                 modifier = Modifier.padding(all = 20.dp)
             ) {
@@ -79,7 +79,8 @@ fun HomeContent(
             )
 
             CategoryReminder(
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier.fillMaxSize(),
+                navController = navController
             )
         }
     }

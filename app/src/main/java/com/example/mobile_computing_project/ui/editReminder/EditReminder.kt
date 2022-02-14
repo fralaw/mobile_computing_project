@@ -1,4 +1,4 @@
-package com.example.mobile_computing_project.ui.reminder
+package com.example.mobile_computing_project.ui.editReminder
 
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -9,32 +9,62 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.mobile_computing_project.Converters
 import com.example.mobile_computing_project.data.entity.Reminder
 import com.google.accompanist.insets.systemBarsPadding
 import java.util.*
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import android.util.Log
+import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
+import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.runtime.*
-import com.example.mobile_computing_project.Converters
+import androidx.compose.ui.platform.LocalContext
+import androidx.constraintlayout.compose.ConstraintLayout
+import androidx.constraintlayout.compose.Dimension
+import com.example.mobile_computing_project.ui.editReminder.EditReminderViewModel
+import com.example.mobile_computing_project.ui.home.categoryReminder.categoryReminder.CategoryReminderViewModel
+import com.google.android.material.datepicker.MaterialDatePicker
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.delay
 
 
 @Composable
-fun Reminder(
+fun EditReminder(
     onBackPress: () -> Unit,
-    viewModel: ReminderViewModel = viewModel()
+    reminderId: Long?,
 ) {
+
+    val viewModel: EditReminderViewModel = EditReminderViewModel(reminderId)
+    val viewState by viewModel.state.collectAsState()
+
     val coroutineScope = rememberCoroutineScope()
+
     val message = rememberSaveable { mutableStateOf("") }
 
-    //val location_x = rememberSaveable { mutableStateOf(Float) }
-    //val location_y = rememberSaveable { mutableStateOf(Float) }
+    val location_x = rememberSaveable { mutableStateOf(0) }
+    val location_y = rememberSaveable { mutableStateOf(0) }
 
     val reminder_time = rememberSaveable { mutableStateOf("") }
     val creation_time = rememberSaveable { mutableStateOf("") }
+
+    if(viewState.reminder != null){
+        Log.d("tag", viewState.reminder.toString())
+        message.value = viewState.reminder!!.message
+
+        location_x.value = viewState.reminder!!.location_x
+        location_y.value = viewState.reminder!!.location_y
+
+        reminder_time.value = viewState.reminder!!.reminder_time
+        creation_time.value = viewState.reminder!!.creation_time
+    }
+
     Surface {
+
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -49,7 +79,7 @@ fun Reminder(
                         contentDescription = null
                     )
                 }
-                Text(text = "New Reminder")
+                Text(text = "Edit Reminder")
             }
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
@@ -60,7 +90,7 @@ fun Reminder(
                 OutlinedTextField(
                     value = message.value,
                     onValueChange = { message.value = it },
-                    label = { Text(text = "") },
+                    label = { Text(text = "Reminder Message") },
                     modifier = Modifier.fillMaxWidth()
                 )
                 Spacer(modifier = Modifier.height(10.dp))
@@ -80,16 +110,12 @@ fun Reminder(
                     enabled = true,
                     onClick = {
                         coroutineScope.launch {
-                            viewModel.saveReminder(
-                                Reminder(
-                                    message = message.value,
-                                    reminder_time = reminder_time.value,
-                                    location_x = 0,
-                                    location_y = 0,
-                                    creation_time = Converters.calendarToString(Calendar.getInstance()),
-                                    creator_id = 0,
-                                    reminder_seen = false
-                                )
+                            viewModel.updateReminder(
+                                message.value,
+                                location_x.value,
+                                location_y.value,
+                                Converters.stringToCalendar(reminder_time.value),
+                                viewState.reminder?.id
                             )
                         }
                         onBackPress()
