@@ -11,9 +11,11 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.mobile_computing_project.ui.theme.Mobile_computing_projectTheme
+import com.example.mobile_computing_project.util.Graph
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
+        Graph.provideActivityContext(this)
         super.onCreate(savedInstanceState)
         val sp = getSharedPreferences("users", MODE_PRIVATE);
         with (sp.edit()) {

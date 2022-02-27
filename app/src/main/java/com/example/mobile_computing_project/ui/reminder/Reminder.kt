@@ -1,5 +1,13 @@
 package com.example.mobile_computing_project.ui.reminder
 
+import android.app.DatePickerDialog
+import android.app.TimePickerDialog
+import android.content.Context
+import android.text.format.DateFormat.is24HourFormat
+import android.widget.DatePicker
+import android.widget.TimePicker
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
@@ -13,13 +21,16 @@ import com.example.mobile_computing_project.data.entity.Reminder
 import com.google.accompanist.insets.systemBarsPadding
 import java.util.*
 import kotlinx.coroutines.launch
-import java.text.SimpleDateFormat
-import android.util.Log
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
+import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.runtime.*
-import com.example.mobile_computing_project.Converters
-
+import androidx.constraintlayout.compose.ConstraintLayout
+import androidx.constraintlayout.compose.Dimension
+import com.example.mobile_computing_project.RemindersApplication
+import com.example.mobile_computing_project.ui.MainActivity
+import com.example.mobile_computing_project.util.Converters
+import com.example.mobile_computing_project.util.Graph
 
 @Composable
 fun Reminder(
@@ -32,6 +43,34 @@ fun Reminder(
     //val location_x = rememberSaveable { mutableStateOf(Float) }
     //val location_y = rememberSaveable { mutableStateOf(Float) }
 
+    val year: Int
+    val month: Int
+    val day: Int
+    val hour:Int
+    val minute: Int
+
+    val calendar = Calendar.getInstance()
+    year = calendar.get(Calendar.YEAR)
+    month = calendar.get(Calendar.MONTH)
+    day = calendar.get(Calendar.DAY_OF_MONTH)
+
+    val date = rememberSaveable { mutableStateOf("") }
+    val datePickerDialog = DatePickerDialog(
+        Graph.activityContext,
+        { _: DatePicker, year: Int, month: Int, dayOfMonth: Int ->
+            date.value = assignCorrectDate(year,month,dayOfMonth)
+        }, year, month, day
+    )
+
+    val time = rememberSaveable {mutableStateOf("")}
+    hour = calendar.get(Calendar.HOUR_OF_DAY)
+    minute = calendar.get(Calendar.MINUTE)
+    val timePickerDialog = TimePickerDialog(
+        Graph.activityContext,
+        {_, hour : Int, minute: Int ->
+            time.value = "$hour:$minute:00"
+        }, hour, minute, true
+    )
     val reminder_time = rememberSaveable { mutableStateOf("") }
     val creation_time = rememberSaveable { mutableStateOf("") }
     Surface {
@@ -64,17 +103,84 @@ fun Reminder(
                     modifier = Modifier.fillMaxWidth()
                 )
                 Spacer(modifier = Modifier.height(10.dp))
-                OutlinedTextField(
-                    value = reminder_time.value,
-                    onValueChange = { reminder_time.value = it },
-                    label = { Text(text = "Reminder time") },
-                    modifier = Modifier.fillMaxWidth(),
-                    keyboardOptions = KeyboardOptions(
-                        keyboardType = KeyboardType.Number
-                    )
+                Text(
+                    text = "Selected date: ${date.value}"
                 )
-                Spacer(modifier = Modifier.height(10.dp))
+                /*Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .wrapContentSize(Alignment.TopStart)
+                        .padding(top = 10.dp)
+                        .border(0.5.dp, MaterialTheme.colors.onSurface.copy(alpha = 0.5f))
+                        .clickable {
+                            datePickerDialog.show()
+                        }
+                ) {
 
+                    ConstraintLayout(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp)
+                    ) {
+
+                        val (lable, iconView) = createRefs()
+
+                        Text(
+                            text = "Date Picker",
+                            color = MaterialTheme.colors.onSurface,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .constrainAs(lable) {
+                                    top.linkTo(parent.top)
+                                    bottom.linkTo(parent.bottom)
+                                    start.linkTo(parent.start)
+                                    end.linkTo(iconView.start)
+                                    width = Dimension.fillToConstraints
+                                }
+                        )
+
+                        Icon(
+                            imageVector = Icons.Default.DateRange,
+                            contentDescription = null,
+                            modifier = Modifier
+                                .size(20.dp, 20.dp)
+                                .constrainAs(iconView) {
+                                    end.linkTo(parent.end)
+                                    top.linkTo(parent.top)
+                                    bottom.linkTo(parent.bottom)
+                                },
+                            tint = MaterialTheme.colors.onSurface
+                        )
+
+                    }
+                }
+                */
+                Button(
+                    enabled = true,
+                    onClick = {
+                        datePickerDialog.show()
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .size(40.dp)
+                ) {
+                    Text("Pick a date")
+                }
+                Spacer(modifier = Modifier.height(10.dp))
+                Text(
+                    text = "Selected date: ${time.value}"
+                )
+                Button(
+                    enabled = true,
+                    onClick = {
+                        timePickerDialog.show()
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .size(40.dp)
+                ) {
+                    Text("Pick a time")
+                }
                 Spacer(modifier = Modifier.height(10.dp))
                 Button(
                     enabled = true,
@@ -83,10 +189,10 @@ fun Reminder(
                             viewModel.saveReminder(
                                 Reminder(
                                     message = message.value,
-                                    reminder_time = reminder_time.value,
+                                    reminder_time = Converters.stringToCalendar(date.value + " " + time.value),
                                     location_x = 0,
                                     location_y = 0,
-                                    creation_time = Converters.calendarToString(Calendar.getInstance()),
+                                    creation_time = Calendar.getInstance(),
                                     creator_id = 0,
                                     reminder_seen = false
                                 )
@@ -98,9 +204,23 @@ fun Reminder(
                         .fillMaxWidth()
                         .size(55.dp)
                 ) {
-                    Text("Save reminder")
+                    Text(text= "Save reminder")
                 }
             }
         }
     }
+}
+
+private fun assignCorrectDate(year: Int, month: Int, dayOfMonth: Int): String {
+    var monthString = "${month+1}"
+    var dayOfMonthString = "$dayOfMonth"
+    if(month < 9) {
+        monthString = "0${month+1}"
+    }
+    if(dayOfMonth < 10){
+        dayOfMonthString = "0$dayOfMonth"
+    }
+
+    return "$dayOfMonthString-$monthString-$year"
+
 }

@@ -8,29 +8,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.mobile_computing_project.Converters
-import com.example.mobile_computing_project.data.entity.Reminder
+import com.example.mobile_computing_project.util.Converters
 import com.google.accompanist.insets.systemBarsPadding
-import java.util.*
 import kotlinx.coroutines.launch
-import java.text.SimpleDateFormat
 import android.util.Log
-import androidx.appcompat.app.AppCompatActivity
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
-import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.runtime.*
-import androidx.compose.ui.platform.LocalContext
-import androidx.constraintlayout.compose.ConstraintLayout
-import androidx.constraintlayout.compose.Dimension
-import com.example.mobile_computing_project.ui.editReminder.EditReminderViewModel
-import com.example.mobile_computing_project.ui.home.categoryReminder.categoryReminder.CategoryReminderViewModel
-import com.google.android.material.datepicker.MaterialDatePicker
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.delay
 
 
 @Composable
@@ -59,8 +43,8 @@ fun EditReminder(
         location_x.value = viewState.reminder!!.location_x
         location_y.value = viewState.reminder!!.location_y
 
-        reminder_time.value = viewState.reminder!!.reminder_time
-        creation_time.value = viewState.reminder!!.creation_time
+        reminder_time.value = Converters.calendarToString(viewState.reminder!!.reminder_time)
+        creation_time.value = Converters.calendarToString(viewState.reminder!!.creation_time)
     }
 
     Surface {

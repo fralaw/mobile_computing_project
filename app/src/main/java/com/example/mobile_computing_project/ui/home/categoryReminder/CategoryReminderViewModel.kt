@@ -2,8 +2,7 @@ package com.example.mobile_computing_project.ui.home.categoryReminder.categoryRe
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.mobile_computing_project.Graph
-import com.example.mobile_computing_project.Graph.reminderRepository
+import com.example.mobile_computing_project.util.Graph
 import com.example.mobile_computing_project.data.entity.Reminder
 import com.example.mobile_computing_project.data.repository.ReminderRepository
 
@@ -11,7 +10,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.collect
-import java.time.LocalDateTime
 import java.util.*
 
 class CategoryReminderViewModel(
@@ -24,8 +22,9 @@ class CategoryReminderViewModel(
 
     init {
         viewModelScope.launch {
+            val currentTime = Calendar.getInstance().timeInMillis;
             reminderRepository.clearReminders()
-            reminderRepository.getReminders().collect { list ->
+            reminderRepository.getAlreadyOccurredReminders(currentTime).collect { list ->
                 _state.value = CategoryReminderViewState(
                     reminders = list
                 )
@@ -34,8 +33,9 @@ class CategoryReminderViewModel(
     }
     fun deleteReminder(id: Long) {
         viewModelScope.launch {
+            val currentTime = Calendar.getInstance().timeInMillis;
             reminderRepository.deleteReminder(id)
-            reminderRepository.getReminders().collect { list ->
+            reminderRepository.getAlreadyOccurredReminders(currentTime).collect { list ->
                 _state.value = CategoryReminderViewState(
                     reminders = list
                 )

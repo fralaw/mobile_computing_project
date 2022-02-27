@@ -26,6 +26,9 @@ abstract class ReminderDao {
     @Query(value = "SELECT * FROM reminders LIMIT 15")
     abstract fun getReminders(): Flow<List<Reminder>>
 
+    @Query(value = "SELECT * FROM reminders WHERE reminder_time <= :currentTime LIMIT 15")
+    abstract fun getAlreadyOccurredReminders(currentTime: Long): Flow<List<Reminder>>
+
     @Query(value = "SELECT * FROM reminders WHERE id = :reminderId")
     abstract suspend fun getReminderById(reminderId: Long?): Reminder?
 

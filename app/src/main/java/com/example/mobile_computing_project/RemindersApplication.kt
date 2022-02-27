@@ -1,7 +1,7 @@
 package com.example.mobile_computing_project
 
 import android.app.Application
-import android.os.Bundle
+import com.example.mobile_computing_project.util.Graph
 
 class RemindersApplication : Application() {
     override fun onCreate(){

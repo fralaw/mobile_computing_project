@@ -1,40 +1,26 @@
 package com.example.mobile_computing_project.ui.home.categoryReminder
 
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.runtime.*
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.example.mobile_computing_project.Converters
-import com.example.mobile_computing_project.Converters.Companion.calendarToString
 import com.example.mobile_computing_project.R
 import com.example.mobile_computing_project.data.entity.Reminder
 import com.example.mobile_computing_project.ui.home.categoryReminder.categoryReminder.CategoryReminderViewModel
-import com.example.mobile_computing_project.ui.reminder.ReminderViewModel
-import com.google.accompanist.insets.systemBarsPadding
-import kotlinx.coroutines.launch
-import java.time.format.DateTimeFormatter
-import java.util.*
+import com.example.mobile_computing_project.util.Converters
 
 @Composable
 fun CategoryReminder(
@@ -106,7 +92,7 @@ private fun ReminderListItem(
         })
         // title
         Text(
-            text = reminder.reminder_time,
+            text = Converters.calendarToString(reminder.reminder_time),
             style = MaterialTheme.typography.subtitle1,
             modifier = Modifier.constrainAs(reminderTitle) {
                 linkTo(
@@ -138,7 +124,7 @@ private fun ReminderListItem(
         )
         // date
         Text(
-            text = reminder.reminder_time,
+            text = Converters.calendarToString(reminder.reminder_time),
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
             style = MaterialTheme.typography.caption,
