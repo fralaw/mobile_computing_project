@@ -2,19 +2,12 @@ package com.example.mobile_computing_project.ui.reminder
 
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
-import android.content.Context
-import android.text.format.DateFormat.is24HourFormat
 import android.widget.DatePicker
-import android.widget.TimePicker
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.mobile_computing_project.data.entity.Reminder
@@ -23,19 +16,17 @@ import java.util.*
 import kotlinx.coroutines.launch
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
-import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.runtime.*
-import androidx.constraintlayout.compose.ConstraintLayout
-import androidx.constraintlayout.compose.Dimension
-import com.example.mobile_computing_project.RemindersApplication
-import com.example.mobile_computing_project.ui.MainActivity
+import androidx.navigation.NavController
 import com.example.mobile_computing_project.util.Converters
 import com.example.mobile_computing_project.util.Graph
+import com.google.android.gms.maps.model.LatLng
 
 @Composable
 fun Reminder(
     onBackPress: () -> Unit,
-    viewModel: ReminderViewModel = viewModel()
+    viewModel: ReminderViewModel = viewModel(),
+    navController: NavController
 ) {
     val coroutineScope = rememberCoroutineScope()
     val message = rememberSaveable { mutableStateOf("") }
@@ -48,6 +39,13 @@ fun Reminder(
     val day: Int
     val hour:Int
     val minute: Int
+
+    val latlng = navController
+        .currentBackStackEntry
+        ?.savedStateHandle
+        ?.getLiveData<LatLng>("location_data")
+        ?.value
+
 
     val calendar = Calendar.getInstance()
     year = calendar.get(Calendar.YEAR)
@@ -106,7 +104,132 @@ fun Reminder(
                 Text(
                     text = "Selected date: ${date.value}"
                 )
-                /*Box(
+
+                Button(
+                    enabled = true,
+                    onClick = {
+                        datePickerDialog.show()
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .size(40.dp)
+                ) {
+                    Text("Pick a date")
+                }
+                Spacer(modifier = Modifier.height(10.dp))
+                Text(
+                    text = "Selected date: ${time.value}"
+                )
+                Button(
+                    enabled = true,
+                    onClick = {
+                        timePickerDialog.show()
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .size(40.dp)
+                ) {
+                    Text("Pick a time")
+                }
+                Spacer(modifier = Modifier.height(10.dp))
+                if (latlng == null) {
+                    OutlinedButton(
+                        onClick = { navController.navigate("map") },
+                        modifier = Modifier.height(55.dp)
+                    ) {
+                        Text(text = "Payment location")
+                    }
+                } else {
+                    Text(
+                        text = "Lat: ${latlng.latitude}, \nLng: ${latlng.longitude}"
+                    )
+                }
+            }
+            var reminder:Reminder
+
+            if (latlng != null && date.value != ""){
+                reminder = Reminder(
+                    message = message.value,
+                    reminder_time = Converters.stringToCalendar(date.value + " " + time.value),
+                    location_x = latlng!!.latitude,
+                    location_y = latlng!!.longitude,
+                    creation_time = Calendar.getInstance(),
+                    creator_id = 0,
+                    reminder_seen = false
+                )
+            }
+            else if(latlng == null && date.value!= "") {
+                reminder = Reminder(
+                    message = message.value,
+                    reminder_time = Converters.stringToCalendar(date.value + " " + time.value),
+                    location_x = 0.0,
+                    location_y = 0.0,
+                    creation_time = Calendar.getInstance(),
+                    creator_id = 0,
+                    reminder_seen = false
+                )
+            }
+            else if(latlng != null && date.value == "") {
+                reminder = Reminder(
+                    message = message.value,
+                    reminder_time = Calendar.getInstance(),
+                    location_x = latlng!!.latitude,
+                    location_y = latlng!!.longitude,
+                    creation_time = Calendar.getInstance(),
+                    creator_id = 0,
+                    reminder_seen = false
+                )
+            }
+            else{
+                reminder = Reminder(
+                    message = message.value,
+                    reminder_time = Calendar.getInstance(),
+                    location_x = 0.0,
+                    location_y = 0.0,
+                    creation_time = Calendar.getInstance(),
+                    creator_id = 0,
+                    reminder_seen = false
+                )
+
+            }
+
+                Button(
+                    enabled = true,
+                    onClick = {
+                        coroutineScope.launch {
+                            viewModel.saveReminder(
+                                reminder
+                                )
+                        }
+                        onBackPress()
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .size(55.dp)
+                ) {
+                    Text(text= "Save reminder")
+                }
+
+            }
+        }
+    }
+private fun assignCorrectDate(year: Int, month: Int, dayOfMonth: Int): String {
+    var monthString = "${month+1}"
+    var dayOfMonthString = "$dayOfMonth"
+    if(month < 9) {
+        monthString = "0${month+1}"
+    }
+    if(dayOfMonth < 10){
+        dayOfMonthString = "0$dayOfMonth"
+    }
+
+    return "$dayOfMonthString-$monthString-$year"
+
+}
+
+
+
+/*Box(
                     modifier = Modifier
                         .fillMaxSize()
                         .wrapContentSize(Alignment.TopStart)
@@ -155,72 +278,3 @@ fun Reminder(
                     }
                 }
                 */
-                Button(
-                    enabled = true,
-                    onClick = {
-                        datePickerDialog.show()
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .size(40.dp)
-                ) {
-                    Text("Pick a date")
-                }
-                Spacer(modifier = Modifier.height(10.dp))
-                Text(
-                    text = "Selected date: ${time.value}"
-                )
-                Button(
-                    enabled = true,
-                    onClick = {
-                        timePickerDialog.show()
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .size(40.dp)
-                ) {
-                    Text("Pick a time")
-                }
-                Spacer(modifier = Modifier.height(10.dp))
-                Button(
-                    enabled = true,
-                    onClick = {
-                        coroutineScope.launch {
-                            viewModel.saveReminder(
-                                Reminder(
-                                    message = message.value,
-                                    reminder_time = Converters.stringToCalendar(date.value + " " + time.value),
-                                    location_x = 0,
-                                    location_y = 0,
-                                    creation_time = Calendar.getInstance(),
-                                    creator_id = 0,
-                                    reminder_seen = false
-                                )
-                            )
-                        }
-                        onBackPress()
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .size(55.dp)
-                ) {
-                    Text(text= "Save reminder")
-                }
-            }
-        }
-    }
-}
-
-private fun assignCorrectDate(year: Int, month: Int, dayOfMonth: Int): String {
-    var monthString = "${month+1}"
-    var dayOfMonthString = "$dayOfMonth"
-    if(month < 9) {
-        monthString = "0${month+1}"
-    }
-    if(dayOfMonth < 10){
-        dayOfMonthString = "0$dayOfMonth"
-    }
-
-    return "$dayOfMonthString-$monthString-$year"
-
-}

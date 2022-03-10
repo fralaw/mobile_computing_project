@@ -28,7 +28,7 @@ class EditReminderViewModel(
         }
     }
 
-    suspend fun updateReminder(message: String?, location_x: Int?, location_y: Int?, reminder_time: Calendar?, reminderId: Long?){
+    suspend fun updateReminder(message: String?, location_x: Double?, location_y: Double?, reminder_time: Calendar?, reminderId: Long?){
         reminderRepository.updateReminder(message, location_x, location_y, reminder_time,reminderId)
     }
 }

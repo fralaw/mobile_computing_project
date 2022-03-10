@@ -17,8 +17,8 @@ import java.util.*
 data class Reminder(
     @PrimaryKey(autoGenerate = true) @ColumnInfo(name = "id") val id: Long = 0,
     @ColumnInfo(name = "message") val message: String,
-    @ColumnInfo(name = "location_x") val location_x: Int,
-    @ColumnInfo(name = "location_y") val location_y: Int,
+    @ColumnInfo(name = "location_x") val location_x: Double,
+    @ColumnInfo(name = "location_y") val location_y: Double,
     @ColumnInfo(name = "reminder_time") val reminder_time: Calendar,
     @ColumnInfo(name = "creation_time") val creation_time: Calendar,
     @ColumnInfo(name = "creator_id") val creator_id: Long,

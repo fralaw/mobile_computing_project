@@ -22,7 +22,7 @@ class ReminderRepository(
 
     suspend fun clearReminders(): Void = reminderDao.clearReminders()
     suspend fun deleteReminder(reminderId: Long): Void = reminderDao.deleteReminder(reminderId)
-    suspend fun updateReminder(message: String?, location_x: Int?, location_y: Int?, reminder_time: Calendar?, reminderId: Long?):Void
+    suspend fun updateReminder(message: String?, location_x: Double?, location_y: Double?, reminder_time: Calendar?, reminderId: Long?):Void
                 = reminderDao.updateReminder(message,location_x,location_y,reminder_time,reminderId)
 
 }

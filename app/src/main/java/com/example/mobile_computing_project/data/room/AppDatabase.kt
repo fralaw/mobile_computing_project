@@ -8,7 +8,7 @@ import com.example.mobile_computing_project.data.entity.Reminder
 
 @Database(
     entities = [Reminder::class],
-    version = 5,
+    version = 6,
     exportSchema = false
 )
 @TypeConverters(Converters::class)

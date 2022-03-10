@@ -30,8 +30,8 @@ fun EditReminder(
 
     val message = rememberSaveable { mutableStateOf("") }
 
-    val location_x = rememberSaveable { mutableStateOf(0) }
-    val location_y = rememberSaveable { mutableStateOf(0) }
+    val location_x = rememberSaveable { mutableStateOf(0.0) }
+    val location_y = rememberSaveable { mutableStateOf(0.0) }
 
     val reminder_time = rememberSaveable { mutableStateOf("") }
     val creation_time = rememberSaveable { mutableStateOf("") }
