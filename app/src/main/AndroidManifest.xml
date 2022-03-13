@@ -2,6 +2,13 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.mobile_computing_project">
 
+    <queries>
+        <intent>
+            <action android:name="android.speech.RecognitionService"/>
+        </intent>
+    </queries>
+
+
     <application
         android:name = "RemindersApplication"
         android:allowBackup="true"
@@ -13,6 +20,8 @@
 
         <meta-data android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyBs2or0_FSF1DI8ER3lr7OmQAOr70Cupj4" />
+
+
 
         <activity
             android:name=".ui.MainActivity"

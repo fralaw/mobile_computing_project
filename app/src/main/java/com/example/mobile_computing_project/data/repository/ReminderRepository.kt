@@ -19,7 +19,6 @@ class ReminderRepository(
     }
 
     fun getAlreadyOccurredReminders(currentTime: Long): Flow<List<Reminder>> = reminderDao.getAlreadyOccurredReminders(currentTime)
-
     suspend fun clearReminders(): Void = reminderDao.clearReminders()
     suspend fun deleteReminder(reminderId: Long): Void = reminderDao.deleteReminder(reminderId)
     suspend fun updateReminder(message: String?, location_x: Double?, location_y: Double?, reminder_time: Calendar?, reminderId: Long?):Void

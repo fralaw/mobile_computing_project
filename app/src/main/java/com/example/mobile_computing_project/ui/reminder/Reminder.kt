@@ -1,8 +1,14 @@
 package com.example.mobile_computing_project.ui.reminder
 
+import android.app.Activity
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
+import android.content.Context
+import android.content.Intent
+import android.speech.RecognizerIntent
+import android.speech.SpeechRecognizer
 import android.widget.DatePicker
+import android.widget.Toast
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -17,6 +23,16 @@ import kotlinx.coroutines.launch
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.platform.LocalContext
+
+
+import android.os.Bundle
+
+import androidx.activity.ComponentActivity
+import androidx.core.app.ActivityCompat.startActivityForResult
+import androidx.core.content.ContextCompat.startActivity
+
+
 import androidx.navigation.NavController
 import com.example.mobile_computing_project.util.Converters
 import com.example.mobile_computing_project.util.Graph
@@ -27,7 +43,7 @@ fun Reminder(
     onBackPress: () -> Unit,
     viewModel: ReminderViewModel = viewModel(),
     navController: NavController
-) {
+){
     val coroutineScope = rememberCoroutineScope()
     val message = rememberSaveable { mutableStateOf("") }
 
@@ -101,6 +117,18 @@ fun Reminder(
                     modifier = Modifier.fillMaxWidth()
                 )
                 Spacer(modifier = Modifier.height(10.dp))
+                Button(
+                    enabled = true,
+                    onClick = {
+                        askSpeechInput(Graph.appContext)
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .size(40.dp)
+                ) {
+                    Text("Speech to Text")
+                }
+                Spacer(modifier = Modifier.height(10.dp))
                 Text(
                     text = "Selected date: ${date.value}"
                 )
@@ -137,13 +165,18 @@ fun Reminder(
                         onClick = { navController.navigate("map") },
                         modifier = Modifier.height(55.dp)
                     ) {
-                        Text(text = "Payment location")
+                        Text(text = "Reminder location")
                     }
                 } else {
                     Text(
                         text = "Lat: ${latlng.latitude}, \nLng: ${latlng.longitude}"
                     )
                 }
+            }
+
+            if(Graph.stt.value != ""){
+                message.value = Graph.stt.value
+                Graph.stt.value = ""
             }
             var reminder:Reminder
 
@@ -158,7 +191,8 @@ fun Reminder(
                     reminder_seen = false
                 )
             }
-            else if(latlng == null && date.value!= "") {
+
+            else if(latlng == null && date.value!= "" && time.value != "") {
                 reminder = Reminder(
                     message = message.value,
                     reminder_time = Converters.stringToCalendar(date.value + " " + time.value),
@@ -169,7 +203,7 @@ fun Reminder(
                     reminder_seen = false
                 )
             }
-            else if(latlng != null && date.value == "") {
+            else if(latlng != null && date.value == "" && time.value =="") {
                 reminder = Reminder(
                     message = message.value,
                     reminder_time = Calendar.getInstance(),
@@ -226,6 +260,21 @@ private fun assignCorrectDate(year: Int, month: Int, dayOfMonth: Int): String {
     return "$dayOfMonthString-$monthString-$year"
 
 }
+
+private fun askSpeechInput(context: Context) {
+    if (!SpeechRecognizer.isRecognitionAvailable(context)) {
+        Toast.makeText(context, "Speech not Available", Toast.LENGTH_SHORT).show()
+    } else {
+        val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH)
+        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_WEB_SEARCH)
+        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault())
+        intent.putExtra(RecognizerIntent.EXTRA_PROMPT, "Talk Something")
+
+        startActivityForResult(Graph.activity, intent, 102, null)
+    }
+}
+
+
 
 
 
