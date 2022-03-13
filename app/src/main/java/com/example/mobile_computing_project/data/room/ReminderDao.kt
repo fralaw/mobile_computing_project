@@ -14,8 +14,8 @@ abstract class ReminderDao {
     @Query(value = "UPDATE reminders SET message = :message, location_x = :location_x, location_y = :location_y, reminder_time = :reminder_time WHERE id = :reminderId")
     abstract suspend fun updateReminder(
         message: String?,
-        location_x: Int?,
-        location_y: Int?,
+        location_x: Double?,
+        location_y: Double?,
         reminder_time: Calendar?,
         reminderId: Long?
     ): Void

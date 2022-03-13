@@ -1,11 +1,13 @@
 package com.example.mobile_computing_project.ui.home.categoryReminder
 
+import android.speech.tts.TextToSpeech
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Call
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.runtime.*
@@ -17,21 +19,27 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import androidx.work.ListenableWorker
+import androidx.work.Operation
 import com.example.mobile_computing_project.R
 import com.example.mobile_computing_project.data.entity.Reminder
+import com.example.mobile_computing_project.ui.home.HomeViewModel
 import com.example.mobile_computing_project.ui.home.categoryReminder.categoryReminder.CategoryReminderViewModel
 import com.example.mobile_computing_project.util.Converters
+import com.example.mobile_computing_project.util.Graph
+import java.util.*
 
 @Composable
 fun CategoryReminder(
+    homeViewModel: HomeViewModel,
     modifier: Modifier = Modifier,
     navController: NavController,
 ) {
-    val viewModel: CategoryReminderViewModel = viewModel()
-    val viewState by viewModel.state.collectAsState()
+    //val viewModel: CategoryReminderViewModel = viewModel()
+    val viewState by homeViewModel.state.collectAsState()
 
     Column(modifier = modifier) {
-        ReminderList(viewModel,
+        ReminderList(homeViewModel,
             list = viewState.reminders,
             navController
         )
@@ -40,7 +48,7 @@ fun CategoryReminder(
 
 @Composable
 private fun ReminderList(
-    viewModel: CategoryReminderViewModel,
+    homeViewModel: HomeViewModel,
     list: List<Reminder>,
     navController: NavController
 ) {
@@ -53,7 +61,7 @@ private fun ReminderList(
                 reminder = item,
                 onClick = {},
                 modifier = Modifier.fillParentMaxWidth(),
-                viewModel = viewModel,
+                viewModel = homeViewModel,
                 navController
             )
         }
@@ -66,11 +74,11 @@ private fun ReminderListItem(
     reminder: Reminder,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
-    viewModel: CategoryReminderViewModel,
+    viewModel: HomeViewModel,
     navController: NavController
 ) {
     ConstraintLayout(modifier = modifier.clickable { onClick() }) {
-        val (divider, reminderTitle, reminderDescription, editicon,deleteicon, date, topspacer,bottomspacer) = createRefs()
+        val (divider, reminderTitle, reminderDescription, editicon,deleteicon, date, topspacer,bottomspacer, ttsicon) = createRefs()
         Divider(
             Modifier.constrainAs(divider) {
                 top.linkTo(parent.top)
@@ -112,7 +120,7 @@ private fun ReminderListItem(
             style = MaterialTheme.typography.subtitle2,
             modifier = Modifier.constrainAs(reminderDescription) {
                 linkTo(
-                    start = reminderTitle.end,
+                    start = parent.start,
                     end = editicon.start,
                     startMargin = 24.dp,
                     endMargin = 16.dp,
@@ -149,8 +157,8 @@ private fun ReminderListItem(
                 .padding(6.dp)
                 .constrainAs(editicon) {
                     top.linkTo(parent.top, 10.dp)
-                    bottom.linkTo(editicon.top, 10.dp)
-                    end.linkTo(parent.end)
+                    bottom.linkTo(parent.bottom, 10.dp)
+                    end.linkTo(ttsicon.start)
                 }
         ) {
             Icon(
@@ -176,6 +184,22 @@ private fun ReminderListItem(
                 contentDescription = stringResource(R.string.check_mark)
             )
         }
+        IconButton(
+            onClick = { textToSpeech(reminder) },
+            modifier = Modifier
+                .size(50.dp)
+                .padding(6.dp)
+                .constrainAs(ttsicon) {
+                    top.linkTo(parent.top, 10.dp)
+                    bottom.linkTo(parent.bottom, 10.dp)
+                    end.linkTo(deleteicon.start)
+                }
+        ){
+            Icon(
+                imageVector = Icons.Filled.Call,
+                contentDescription = "tts"
+            )
+        }
         Spacer(modifier = Modifier.constrainAs(bottomspacer){
             linkTo(
                 start = parent.start,
@@ -189,7 +213,18 @@ private fun ReminderListItem(
             width = Dimension.preferredWrapContent
         })
     }
+
 }
 
+private fun textToSpeech(reminder: Reminder){
+    lateinit var tts: TextToSpeech
+    tts = TextToSpeech(Graph.appContext,TextToSpeech.OnInitListener {
+        if(it == TextToSpeech.SUCCESS){
+            tts.language = Locale.US
+            tts.setSpeechRate(1.0f)
+            tts.speak(reminder.message, TextToSpeech.QUEUE_ADD, null)
+        }
+    })
+}
 
 

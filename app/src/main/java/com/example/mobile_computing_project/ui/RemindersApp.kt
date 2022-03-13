@@ -1,5 +1,6 @@
 package com.example.mobile_computing_project.ui
 
+import ReminderLocationMap
 import android.content.SharedPreferences
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavType
@@ -18,7 +19,7 @@ import com.example.mobile_computing_project.ui.reminder.Reminder
 fun RemindersApp(
     sp: SharedPreferences,
     appState: RemindersAppState = rememberRemindersAppState(),
-){
+) {
     NavHost(
         navController = appState.navController,
         startDestination = "login"
@@ -33,17 +34,20 @@ fun RemindersApp(
         }
         composable(route = "reminder")
         {
-            Reminder(onBackPress = appState::navigateBack)
+            Reminder(onBackPress = appState::navigateBack, navController = appState.navController)
         }
-        composable(route = "editReminder/{reminder_id}",arguments = listOf(
+        composable(route = "editReminder/{reminder_id}", arguments = listOf(
             navArgument("reminder_id") {
                 type = NavType.LongType
             }
+
         ))
-        {
-            backStackEntry ->
+        { backStackEntry ->
             val reminderId = backStackEntry.arguments?.getLong("reminder_id")
             EditReminder(onBackPress = appState::navigateBack, reminderId = reminderId)
+        }
+        composable(route = "map") {
+            ReminderLocationMap(navController = appState.navController)
         }
     }
 }

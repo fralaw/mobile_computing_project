@@ -1,5 +1,6 @@
 package com.example.mobile_computing_project.ui.home
 
+import android.util.Log
 import androidx.navigation.NavHostController
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -18,10 +19,7 @@ import androidx.compose.material.TabPosition
 import androidx.compose.material.Text
 import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AccountCircle
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.ExitToApp
-import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -34,15 +32,22 @@ import androidx.navigation.NavController
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.mobile_computing_project.R
 import com.example.mobile_computing_project.ui.home.categoryReminder.CategoryReminder
+import com.example.mobile_computing_project.ui.home.categoryReminder.categoryReminder.CategoryReminderViewModel
 import com.google.accompanist.insets.systemBarsPadding
+import com.google.android.gms.maps.model.LatLng
 
 @Composable
 fun Home(
     navController: NavController
-) {
+)
+    {
+        val viewModel: HomeViewModel = viewModel()
+        val viewState by viewModel.state.collectAsState()
+
         Surface(modifier = Modifier.fillMaxSize()) {
             HomeContent(
-                navController = navController
+                navController = navController,
+                viewModel = viewModel
             )
         }
     }
@@ -51,7 +56,9 @@ fun Home(
 @Composable
 fun HomeContent(
     navController: NavController,
+    viewModel: HomeViewModel
 ) {
+    val viewState by viewModel.state.collectAsState()
     Scaffold(
         modifier = Modifier.padding(bottom = 36.dp),
         floatingActionButton = {
@@ -76,11 +83,14 @@ fun HomeContent(
 
             HomeAppBar(
                 backgroundColor = appBarColor,
+                viewModel,
+                navController
             )
 
             CategoryReminder(
                 modifier = Modifier.fillMaxSize(),
-                navController = navController
+                navController = navController,
+                homeViewModel = viewModel
             )
         }
     }
@@ -88,8 +98,16 @@ fun HomeContent(
 
 @Composable
 private fun HomeAppBar(
-    backgroundColor: Color
+    backgroundColor: Color,
+    viewModel: HomeViewModel,
+    navController: NavController
 ) {
+    var latlng = navController
+        .currentBackStackEntry
+        ?.savedStateHandle
+        ?.getLiveData<LatLng>("location_data")
+        ?.value
+
     TopAppBar(
         title = {
             Text(
@@ -108,6 +126,24 @@ private fun HomeAppBar(
             IconButton( onClick = {} ) {
                 Icon(imageVector = Icons.Filled.ExitToApp, contentDescription = stringResource(R.string.logout))
             }
+            IconButton( onClick = {viewModel.updateReminders()} ){
+                Icon(imageVector = Icons.Filled.Refresh, contentDescription = "Refresh")
+            }
+            IconButton( onClick = {navController.navigate("map")}){
+                Icon(imageVector = Icons.Filled.LocationOn, contentDescription = "Map")
+            }
         }
     )
+    if (latlng != null){
+        Log.i("LatLng: ", latlng.toString())
+        if(latlng.latitude == 65.06 && latlng.longitude == 25.47){
+            viewModel.updateReminders()
+
+        }
+        else{
+            viewModel.locationReminders(latlng.latitude, latlng.longitude)
+        }
+
+    }
+
 }
